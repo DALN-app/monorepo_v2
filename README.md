@@ -1,5 +1,4 @@
-![](https://img.shields.io/badge/Incubated_by-100.builders-9146ff?logo=gamejolt&logoColor=white&labelColor=464646&style=for-the-badge)](https://app.100.builders/directory)
-
+![](https://img.shields.io/badge/Incubated_by-100.builders-9146ff?logo=gamejolt&logoColor=white&labelColor=464646&style=for-the-badge)
 
 ![enter image description here](https://brown-agricultural-canidae-490.mypinata.cloud/ipfs/QmRD1BYUMzBjqtQqajJBnHs7gUDb2CixWynptFbWwn79Bu?_gl=1*82nfmc*_ga*NTEwOTI1Njk4LjE2NzQzMzQyNzc.*_ga_5RMPXG14TE*MTY5MzE4NzQ0NS43LjEuMTY5MzE4NzU4My42MC4wLjA.)
 

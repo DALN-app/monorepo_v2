@@ -1,0 +1,22 @@
+- dev
+  npm run dev
+
+- build
+  docker build -t daln:latest -f Dockerfile.ssl .
+OR
+  docker build -t daln:latest -f Dockerfile.nossl .
+
+- publish
+  docker tag daln gcr.io/<target>/daln:1.0
+  docker push gcr.io/<target>/daln:1.0
+  docker tag daln gcr.io/<target>/daln:latest
+  docker push gcr.io/<target>/daln:latest
+
+- deploy
+  sudo docker stop daln
+  sudo docker rm daln
+  sudo docker pull gcr.io/<target>/daln:latest
+  sudo docker run -d --mount type=bind,src=/home/ec2-user/certs,dst=/etc/ssl/certs --mount type=bind,src=/home/ec2-user/logs/nginx,dst=/var/log/nginx --name daln -p 0.0.0.0:80:3000 gcr.io/<target>/daln:latest
+
+- test local
+  docker run -d --name daln -p 0.0.0.0:3123:3000 gcr.io/<target>/daln:latest

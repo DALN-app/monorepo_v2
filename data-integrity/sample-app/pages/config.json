@@ -1,0 +1,7 @@
+{
+  "node": "http://localhost:47080/099cdbbe4213bff84ec9c051749e090e",
+  "organization": "daln",
+  "scope": "vault",
+  "table": "summaries",
+  "auth_chain": "polygon"
+}

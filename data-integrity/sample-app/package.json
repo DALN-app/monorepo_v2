@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@weavechain/weave-node-api": "^1.0.8",
+    "danfojs": "^1.1.2",
+    "JSONStream": "^1.3.5",
+    "next": "latest",
+    "pandas-js": "^0.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "viem": "^1.9.3",
+    "wagmi": "^1.3.11"
+  },
+  "devDependencies": {
+    "@types/node": "20.5.7",
+    "@types/react": "18.2.21",
+    "babel-plugin-styled-components": "^2.1.4",
+    "typescript": "5.2.2"
+  }
+}

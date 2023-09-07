@@ -1,5 +1,5 @@
 {
-  "node": "http://localhost:47080/099cdbbe4213bff84ec9c051749e090e",
+  "node": "http://ec2-16-171-161-12.eu-north-1.compute.amazonaws.com:443/099cdbbe4213bff84ec9c051749e090e",
   "organization": "daln",
   "scope": "vault",
   "table": "summaries",

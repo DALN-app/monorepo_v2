@@ -50,10 +50,18 @@ export default function Home() {
     const process = (): ProcessingResult => {
         try {
             if (content) {
-                const df = new dfd.DataFrame(Object.values(JSON.parse(content)));
+                let df = new dfd.DataFrame(Object.values(JSON.parse(content)));
                 //df.print();
-                const grouped = df.groupby(['date']).col(['amount']).sum();
+
+                //add quarter
+                df.addColumn("quarter", df.date.apply((x) => x.substr(0, 4) + " Q" + (1 + Math.floor(1*x.substr(5, 2) / 3))), { inplace: true });
+
+                //filter example
+                df = df.loc({ rows: df["merchant_name"].ne("United Airlines") });
+
+                const grouped = df.groupby(['quarter','category_id','merchant_name']).col(['amount']).sum();
                 grouped.print();
+
                 const output = dfd.toJSON(grouped);
                 return output ? new ProcessingResult(JSON.stringify((output))) : new ProcessingResult(null, "No result");
             } else {

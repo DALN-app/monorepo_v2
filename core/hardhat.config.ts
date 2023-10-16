@@ -24,6 +24,12 @@ const config: HardhatUserConfig = {
       name: "mumbai",
       chainId: 80001,
     },
+    filecoinCalibration: {
+      url: "https://api.calibration.node.glif.io/rpc/v1",
+      accounts: [process.env.FEVM_TESTNET_PRIVATE_KEY],
+      name: "Filecoin Calibration",
+      chainId: 314159,
+    },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

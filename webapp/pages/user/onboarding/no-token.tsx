@@ -49,13 +49,13 @@ const NoTokenPage: NextPageWithLayout = () => {
           </Heading>
           <WrapItem alignSelf="center">
             <Box justifyContent="start" alignItems="start">
-              <HStack spacing="8px" alignItems="end" mb={6}>
+              <HStack spacing="8px" alignItems={{base:"start", lg:"end"}} mb={6} flexDirection={{ base: "column", lg: "row" }}>
                 <Heading color={"primary.500"} as="h1" size="xl">
-                  1. Upload & Encrypt
+                  1. Download & Analyze
                 </Heading>
                 <Text fontSize="lg">credit card transactions</Text>
               </HStack>
-              <HStack spacing="8px" alignItems="end" mb={6}>
+              <HStack spacing="8px" alignItems={{base:"start", lg:"end"}} mb={6} flexDirection={{ base: "column", lg: "row" }}>
                 <Heading color={"primary.500"} as="h1" size="xl">
                   2. Mint
                 </Heading>
@@ -63,11 +63,11 @@ const NoTokenPage: NextPageWithLayout = () => {
                   a non-transferrable DAO membership token
                 </Text>
               </HStack>
-              <HStack spacing="8px" alignItems="end" mb={6}>
+              <HStack spacing="8px" alignItems={{base:"start", lg:"end"}} mb={6} flexDirection={{ base: "column", lg: "row" }}>
                 <Heading color={"primary.500"} as="h1" size="xl">
                   3. Get rewards
                 </Heading>
-                <Text fontSize="lg">for decrypted data</Text>
+                <Text fontSize="lg">from the aggregated data</Text>
               </HStack>
               <Flex mb={6}>
                 <Checkbox
@@ -110,10 +110,8 @@ const NoTokenPage: NextPageWithLayout = () => {
             </JoinDALNButton>
           </Flex>
           <Flex justifyContent="center" mt={8}>
-            <Text ml={2} maxWidth={720} fontSize="sm" align="center">
-              Your data will be temporarily stored on a cloud server and then
-              encrypted and uploaded to IPFS. The resulting IPFS link is
-              immutable, and the data on the cloud server will be deleted.
+            <Text ml={2} maxWidth={660} fontSize="sm" align="center" color="#828282">
+              We analyze your spending behaviors while the full credit card transaction data stays on your local device. Only the aggregated summaries are uploaded to a secure cloud storage.
             </Text>
           </Flex>
         </Card>

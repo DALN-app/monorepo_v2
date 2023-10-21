@@ -14,6 +14,7 @@ import PageTransition from "~~/components/PageTransition";
 
 export default function UserHome() {
   const { address } = useAccount();
+  const testAddress = '0x3d85c6060f1Ae7ab148E87805AFC05240965BEc7'
 
   const balanceQuery = useContractRead({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,

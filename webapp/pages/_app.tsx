@@ -1,18 +1,16 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import {
-  Center,
   ChakraProvider,
-  CircularProgress,
   Flex,
 } from "@chakra-ui/react";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { ReactElement, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { polygon, localhost, polygonMumbai } from "wagmi/chains";
+import { filecoinCalibration } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
@@ -30,9 +28,9 @@ const queryClient = new QueryClient();
 const { chains, provider, webSocketProvider } = configureChains(
   [
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-      ? [polygonMumbai]
+      ? [filecoinCalibration]
       : []),
-    polygonMumbai,
+      filecoinCalibration,
   ],
   [
     alchemyProvider({

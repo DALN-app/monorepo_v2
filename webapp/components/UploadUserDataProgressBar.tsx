@@ -52,18 +52,18 @@ const UploadUserDataProgressBar = (
       height="24px"
       marginX={10}
     >
-      <PointAndLabel progress={progress} position={0} label={"Upload"} />
+      <PointAndLabel progress={progress} position={0} label={"Download"} />
       <PointAndLabel
         progress={progress}
         position={oneThird}
-        label={"Encrypt & Store"}
+        label={"Analyze data"}
       />
       <PointAndLabel
         progress={progress}
         position={twoThirds}
-        label={"Mint SBT"}
+        label={"Share results"}
       />
-      <PointAndLabel progress={progress} position={100} label={"Complete"} />
+      <PointAndLabel progress={progress} position={100} label={"Mint token"} />
       <Progress
         bgColor="#D9D9D9"
         flex={1}

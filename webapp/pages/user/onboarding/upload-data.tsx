@@ -26,34 +26,33 @@ import usePrepareWriteAndWaitTx from "~~/hooks/usePrepareWriteAndWaitTx";
 import { NextPageWithLayout } from "~~/pages/_app";
 
 const steps = {
-  processing: {
+  downloading: {
     number: 1,
-    title: "Processing...",
-    subtitle: "Your file will be encrypted immediately after uploading process",
+    title: "Downloading...",
   },
-  uploading: {
+  analyzing: {
     number: 2,
-    title: "Uploading to IPFS",
+    title: "Analyzing data...",
     subtitle:
-      "Your data is being uploaded to decentralized storage provided by IPFS",
+      "A computation job is run locally in your browser session",
   },
-  encrypting: {
+  sharing: {
     number: 3,
-    title: "Encrypting your data...",
+    title: "Sharing analytics results...",
     subtitle:
-      "After encryption, your file will be stored on decentralized storage provided by IPFS.",
+      "Anonymized analytics results are being transmitted to a secure cloud storage. It helps us provide personalized offers and promotions from our partners.",
   },
   uploadSuccess: {
     number: 4,
     title: "Upload successful! Mint your token now",
     subtitle:
-      "Only authorized parties such as DAO admins can decrypt and access your data. You will be rewarded with Matic whenever your data is decrypted and processed.",
+      "This non-transferrable token represents your DAO membership and grants you governance rights. You may receive airdrops in the token-bound account mapped to this token.",
   },
   minting: {
     number: 5,
     title: "Confirm minting in your wallet",
     subtitle:
-      "You will be asked to review and confirm the minting from your wallet.",
+      "You will be asked to review and confirm the gas fee payment from your wallet.",
   },
   mintSuccess: {
     number: 6,
@@ -64,7 +63,7 @@ const steps = {
 };
 
 const UploadDataPage: NextPageWithLayout = () => {
-  const [step, setStep] = useState<keyof typeof steps>("processing");
+  const [step, setStep] = useState<keyof typeof steps>("downloading");
 
   const progress = useMemo(
     () => Math.round((100 / Object.keys(steps).length) * steps[step].number),
@@ -74,6 +73,9 @@ const UploadDataPage: NextPageWithLayout = () => {
   const { address: userAddress } = useAccount();
 
   const cid = sessionStorage.getItem("plaidItemId");
+
+  console.log('userAddress', userAddress)
+  console.log('cid', cid)
 
   const mintToken = usePrepareWriteAndWaitTx({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
@@ -85,23 +87,23 @@ const UploadDataPage: NextPageWithLayout = () => {
   });
 
   useEffect(() => {
-    if (step === "processing") {
+    if (step === "downloading") {
       const timer = setTimeout(() => {
-        setStep("uploading");
+        setStep("analyzing");
       }, 3000);
 
       return () => clearTimeout(timer);
     }
 
-    if (step === "uploading") {
+    if (step === "analyzing") {
       const timer = setTimeout(() => {
-        setStep("encrypting");
+        setStep("sharing");
       }, 3000);
 
       return () => clearTimeout(timer);
     }
 
-    if (step === "encrypting") {
+    if (step === "sharing") {
       const timer = setTimeout(() => {
         setStep("uploadSuccess");
       }, 3000);
@@ -130,7 +132,7 @@ const UploadDataPage: NextPageWithLayout = () => {
         flex: 1,
       }}
     >
-      <Box alignSelf="center" width="80vw" overflow={"hidden"}>
+      <Box alignSelf="center" width="80vw" maxWidth={780} overflow={"hidden"}>
         <Heading as="h1" size="lg" textAlign="center" mb={2}>
           {steps[step].title}
         </Heading>
@@ -169,8 +171,7 @@ const UploadDataPage: NextPageWithLayout = () => {
                     <DataBaseSvgComponent />
                   </Center>
                   <Text textAlign="center" fontSize="md" color="#4A5568">
-                    The token is free to mint but you will pay a small gas fee
-                    in Matic
+                  The token is free to mint but you will pay a small gas fee in FIL
                   </Text>
                   <Flex flex={1} justifyContent="center" mt={10}>
                     <Button

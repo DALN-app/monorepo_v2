@@ -22,6 +22,8 @@ import PageTransition from "~~/components/PageTransition";
 import { useBasicSpnFactoryMetadataUri } from "~~/generated/wagmiTypes";
 import { watch } from "fs";
 
+const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
+
 const getTableLandMetadata: QueryFunction<any, string[]> = async ({
   queryKey,
 }) => {
@@ -91,19 +93,11 @@ const Dashboard: NextPageWithLayout = () => {
                 <DashboardStat
                   label="SBT Contract"
                   number={
-                    (
-                      process.env
-                        .NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`
-                    ).slice(0, 6) +
+                    DALN_CONTRACT_ADDRESS.slice(0, 6) +
                     "..." +
-                    (
-                      process.env
-                        .NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`
-                    ).slice(-5)
+                    DALN_CONTRACT_ADDRESS.slice(-5)
                   }
-                  href={`https://mumbai.polygonscan.com/address/${
-                    process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as string
-                  }`}
+                  href={`https://calibration.filscan.io/en/address/${DALN_CONTRACT_ADDRESS}`}
                   isExternalHref
                 />
               </SimpleGrid>

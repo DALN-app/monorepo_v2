@@ -11,9 +11,10 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
+import CheckMarkSvgComponent from "~~/components/svgComponents/CheckMarkSvgComponent";
 import DataBaseSvgComponent from "~~/components/svgComponents/DataBaseSvgComponent";
 import SuccessSvgComponent from "~~/components/svgComponents/SuccessSvgComponent";
 import UploadUserDataProgressBar from "~~/components/UploadUserDataProgressBar";
@@ -36,8 +37,14 @@ const steps = {
     subtitle:
       "A computation job is run locally in your browser session",
   },
-  sharing: {
+  analysisSuccess: {
     number: 3,
+    title: "Analysis completed",
+    subtitle:
+      "Analytic results will be uploaded to a secure cloud storage. The results and visualizations are available in a token-gated personal dashboard.",
+  },
+  sharing: {
+    number: 3.5,
     title: "Sharing analytics results...",
     subtitle:
       "Anonymized analytics results are being transmitted to a secure cloud storage. It helps us provide personalized offers and promotions from our partners.",
@@ -56,26 +63,36 @@ const steps = {
   },
   mintSuccess: {
     number: 6,
-    title: "Token mint successful",
+    title: "Convert to a token-bound account (TBA)",
     subtitle:
-      "You can always burn the token in the personal dashboard if you wish to exit from the DAO and stop sharing your encrypted data.",
+      "The token will serve as a digital backpack where you can receive digital collectibles that match your interest and preferences.",
+  },
+  converting: {
+    number: 7,
+    title: "",
+    subtitle:
+      "",
+  },
+  convertSuccess: {
+    number: 8,
+    title: "Conversion successful",
+    subtitle:
+      "You can now receive airdrops in the token-bound account mapped to this token.",
   },
 };
 
 const UploadDataPage: NextPageWithLayout = () => {
   const [step, setStep] = useState<keyof typeof steps>("downloading");
-
+  const [isConvertLoading, setIsConvertLoading] = useState(false);
   const progress = useMemo(
-    () => Math.round((100 / Object.keys(steps).length) * steps[step].number),
+    // hardcode to 6 regardless of total number of steps
+    () => Math.round((100 / 6) * steps[step].number),
     [step]
   );
 
   const { address: userAddress } = useAccount();
 
-  const cid = sessionStorage.getItem("plaidItemId");
-
-  console.log('userAddress', userAddress)
-  console.log('cid', cid)
+  const cid = sessionStorage.getItem("plaidItemId")
 
   const mintToken = usePrepareWriteAndWaitTx({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
@@ -84,6 +101,13 @@ const UploadDataPage: NextPageWithLayout = () => {
     args: [userAddress, cid],
     enabled:
       !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress && !!cid,
+  });
+
+  const signHashProof = useSignMessage({
+    message: 'Confirm to share analytic results',
+    onSuccess: () => {
+      setStep("sharing");
+    }
   });
 
   useEffect(() => {
@@ -97,7 +121,7 @@ const UploadDataPage: NextPageWithLayout = () => {
 
     if (step === "analyzing") {
       const timer = setTimeout(() => {
-        setStep("sharing");
+        setStep("analysisSuccess");
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -110,6 +134,7 @@ const UploadDataPage: NextPageWithLayout = () => {
 
       return () => clearTimeout(timer);
     }
+    
   }, [step]);
 
   const mint = async () => {
@@ -126,6 +151,21 @@ const UploadDataPage: NextPageWithLayout = () => {
     }
   };
 
+  const convertToken = async () => {
+    // TODO: implement converstion of token to TBA
+
+    // TEMPORARY: skip to convertSuccess
+    const timer = setTimeout(() => {
+      setStep("convertSuccess");
+    }
+      , 3000);
+
+    return () => {
+      setIsConvertLoading(false);
+      clearTimeout(timer)
+    }
+  }
+
   return (
     <Center
       sx={{
@@ -141,6 +181,26 @@ const UploadDataPage: NextPageWithLayout = () => {
         </Text>
         <Center alignItems="center">
           {step === "mintSuccess" ? (
+            <Container>
+              <Flex flex={1} justifyContent="center">
+                <SuccessSvgComponent />
+              </Flex>
+              <Flex flex={1} justifyContent="center" mt={20}>
+                <Button
+                  maxWidth={320}
+                  size="lg"
+                  flex={1}
+                  mb={2}
+                  isDisabled={!userAddress || isConvertLoading}
+                  onClick={() => {
+                    setIsConvertLoading(true)
+                    void convertToken();
+                  }}>
+                  {isConvertLoading ? "Waiting for approval..." : "Convert"}
+                </Button>
+              </Flex>
+            </Container>
+          ) : step === "convertSuccess" ? (
             <Container>
               <Flex flex={1} justifyContent="center">
                 <SuccessSvgComponent />
@@ -165,27 +225,48 @@ const UploadDataPage: NextPageWithLayout = () => {
               }
               justifyContent="center"
             >
-              {step === "uploadSuccess" ? (
+              {step === "analysisSuccess" ? (
                 <Container>
                   <Center>
-                    <DataBaseSvgComponent />
+                    <CheckMarkSvgComponent />
                   </Center>
-                  <Text textAlign="center" fontSize="md" color="#4A5568">
-                  The token is free to mint but you will pay a small gas fee in FIL
-                  </Text>
                   <Flex flex={1} justifyContent="center" mt={10}>
                     <Button
                       maxWidth={320}
                       size="lg"
                       flex={1}
                       mb={2}
+                      isDisabled={!userAddress}
+                      isLoading={signHashProof.isLoading}
+                      onClick={() => {
+                        void signHashProof.signMessage();
+                      }}
+                    >
+                      Share results
+                    </Button>
+                  </Flex>
+                </Container>
+              ) : step === "uploadSuccess" || step === "minting" ? (
+                <Container>
+                  <Center>
+                    <DataBaseSvgComponent />
+                  </Center>
+                  <Text textAlign="center" fontSize="md" color="#4A5568">
+                    The token is free to mint but you will pay a small gas fee in FIL
+                  </Text>
+                  <Flex flex={1} justifyContent="center" mt={10}>
+                    <Button
+                      maxWidth={320}
+                      size="lg"
+                      flex={1}
+                      mb={6}
                       isDisabled={!mintToken.write}
                       isLoading={mintToken.isLoading}
                       onClick={() => {
                         void mint();
                       }}
                     >
-                      Mint token
+                      {step === "minting" ? "Waiting for approval..." : "Mint token"}
                     </Button>
                   </Flex>
                 </Container>
@@ -214,9 +295,10 @@ const UploadDataPage: NextPageWithLayout = () => {
             </Card>
           )}
         </Center>
-        {step === "mintSuccess" ? null : (
+        {steps[step].number >= 6 ?
+          <Container mb={6} /> :
           <UploadUserDataProgressBar progress={progress} />
-        )}
+        }
       </Box>
     </Center>
   );

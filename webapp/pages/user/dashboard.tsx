@@ -8,6 +8,7 @@ import {
   Flex,
   Heading,
   SimpleGrid,
+  Stack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Head from "next/head";
@@ -65,7 +66,7 @@ const Dashboard: NextPageWithLayout = () => {
             lg: 24,
           }}
         >
-          <Card w="full">
+          <Card w="full" pb="100px" mb={2}>
             <CardHeader>
               <Flex justifyContent="flex-end" alignItems="center">
                 <BurnSBT tokenId={tablelandMetadata?.data?.[0]?.id} />
@@ -83,9 +84,7 @@ const Dashboard: NextPageWithLayout = () => {
             </CardHeader>
 
             <CardBody>
-              <SimpleGrid columns={[1, 2]} spacing={5}>
-                <DashboardStat label="Rewards" helpText="Matic" number="1.27" />
-                <DashboardStat label="Decryption Sessions" number="5" />
+              <Stack spacing={5} maxWidth='3xl' mx='auto'>
                 <DashboardStat
                   label="Token ID"
                   number={tablelandMetadata?.data?.[0]?.id}
@@ -98,9 +97,19 @@ const Dashboard: NextPageWithLayout = () => {
                     DALN_CONTRACT_ADDRESS.slice(-5)
                   }
                   href={`https://calibration.filscan.io/en/address/${DALN_CONTRACT_ADDRESS}`}
+                  linkText="View on Filscan"
                   isExternalHref
                 />
-              </SimpleGrid>
+                <DashboardStat label="TBA Address"  
+                  number={
+                    DALN_CONTRACT_ADDRESS.slice(0, 6) +
+                    "..." +
+                    DALN_CONTRACT_ADDRESS.slice(-5)
+                  }
+                  href={`https://opensea.io/${DALN_CONTRACT_ADDRESS}`}
+                  linkText="View on OpenSea"
+                  isExternalHref />
+              </Stack>
             </CardBody>
           </Card>
         </Container>

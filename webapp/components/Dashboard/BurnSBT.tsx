@@ -71,14 +71,14 @@ export default function BurnSBT({
     <>
       <Button
         colorScheme="red"
-        variant="outline"
+        variant="solid"
         onClick={onOpen}
         isLoading={
           userBurn.isLoading || (userBurn.isSuccess && balanceQuery.data?.gt(0))
         }
         {...props}
       >
-        Burn my SBT
+        Burn my token
       </Button>
 
       <AlertDialog
@@ -94,23 +94,30 @@ export default function BurnSBT({
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              If you burn your soul-bound token, you will lose your DAO
-              membership and stop sharing your data. You will also stop
-              receiving rewards.
+              If you burn your soul-bound token, you will lose your DAO membership and stop sharing your data. You will also stop receiving rewards.
+
+              If you have received airdrops of digital collectibles in the token-bound account, make sure they are transferred to a different wallet before you burn the soul-bound token.
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button
+                width={'50%'}
+                colorScheme="gray"
+                color="red"
+                variant="outline"
+                ref={cancelRef}
+                onClick={onClose}>
                 Cancel
               </Button>
               <Button
+                width={'50%'}
                 colorScheme="red"
                 onClick={handleBurn}
                 isDisabled={!userBurn.writeAsync}
                 ml={3}
                 isLoading={userBurn.isLoading}
               >
-                Burn it anyway
+              { userBurn.isLoading ? 'Waiting for approval...' : 'Burn it anyway' }
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -12,8 +12,6 @@ const config: HardhatUserConfig = {
   solidity: "0.8.17",
   namedAccounts: {
     deployer: {
-      default: 0, // here this will by default take the first account as deployer
-      1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
       mumbai: "0xD5Ee68E025b751C199e766a261c59AE7041A1E9b", //it can also specify a specific netwotk name (specified in hardhat.config.js)
       filecoinCalibration: "0xD5Ee68E025b751C199e766a261c59AE7041A1E9b",
     },

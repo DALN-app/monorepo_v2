@@ -30,18 +30,18 @@ contract FEVM_DALN is
   using CountersUpgradeable for CountersUpgradeable.Counter;
   using StringsUpgradeable for uint256;
 
-  CountersUpgradeable.Counter private _tokenIds;
+  CountersUpgradeable.Counter public _tokenIds;
 
-  ITablelandTables private _tableland;
-
-  string private _baseURIString;
-  string private _metadataTable;
-  uint256 private _metadataTableId;
-  string private _tablePrefix;
-  string private _externalURL;
+  string public _baseURIString;
+  string public _metadataTable;
+  uint256 public _metadataTableId;
+  string public _tablePrefix;
+  string public _externalURL;
 
   event Initialized(string _baseURIString);
   event MetadataTableSet(string _metadataTable);
+
+  mapping(address => bool) private _hasMinted;
 
   function initialize(string memory baseURI, string memory externalURL) public initializer {
     __ERC721_init("FEVM_DALN", "DALN");
@@ -73,7 +73,10 @@ contract FEVM_DALN is
       )
     );
 
+    require(_metadataTableId != 0, "Table creation failed!");
+
     _metadataTable = SQLHelpers.toNameFromId(_tablePrefix, _metadataTableId);
+    emit MetadataTableSet(_metadataTable);
 
     return _metadataTableId;
   }
@@ -84,6 +87,8 @@ contract FEVM_DALN is
    * dynamically inserted into the metadata table.
    */
   function safeMint(address to) public returns (uint256) {
+    require(!_hasMinted[to], "Address has already minted a token");
+
     uint256 newItemId = _tokenIds.current();
 
     string memory query;
@@ -107,7 +112,7 @@ contract FEVM_DALN is
         query // values
       )
     );
-
+    _hasMinted[to] = true;
     _safeMint(to, newItemId, "");
     _tokenIds.increment();
     return newItemId;
@@ -142,7 +147,7 @@ contract FEVM_DALN is
   function userBurn(uint256 tokenId) public {
     require(ownerOf(tokenId) == msg.sender, "You do not own this SBT");
 
-    _tableland.mutate(
+    TablelandDeployments.get().mutate(
       address(this),
       _metadataTableId,
       SQLHelpers.toDelete(

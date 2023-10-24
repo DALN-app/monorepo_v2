@@ -154,7 +154,7 @@ const UploadDataPage: NextPageWithLayout = () => {
     }
   };
 
-  const convertToken = async () => {
+  const convertToken = () => {
     // TODO: implement converstion of token to TBA
 
     // TEMPORARY: skip to convertSuccess

@@ -61,7 +61,7 @@ export default function JoinDALNButton({
         cid: data.user.cid,
       });
 
-      router.push('/user/onboarding/upload-data')
+      void router.push('/user/onboarding/upload-data')
     },
     onError(error) {
       console.log(`axios.post() failed: ${error}`);

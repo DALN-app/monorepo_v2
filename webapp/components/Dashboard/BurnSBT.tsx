@@ -60,10 +60,10 @@ export default function BurnSBT({
     if (userBurn.writeAsync) {
       try {
         const burnTx = await userBurn.writeAsync();
-        burnTx.wait().then((res) => {
-          res.status === 1 && router.push("/user/burnt-token");
-        }
-        );
+        const confirmedTx = await burnTx.wait();
+        if (confirmedTx.status === 1) {
+          void router.push("/user/burnt-token");
+        } 
       } catch (e) {
         console.error("burn error", e);
         onClose();

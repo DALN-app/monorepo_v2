@@ -102,8 +102,6 @@ const UploadDataPage: NextPageWithLayout = () => {
       !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress,
   });
 
-  console.log('mintToken', mintToken)
-
   const signHashProof = useSignMessage({
     message: 'Confirm to share analytic results',
     onSuccess: () => {

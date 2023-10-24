@@ -19,7 +19,7 @@
     "rootDirs": [".", "../core"],
     "baseUrl": ".",
     "jsx": "preserve",
-    "jsxImportSource": "@emotion/react",
+    "types": ["@emotion/react/types/css-prop"],
     "paths": {
       "~~/*": ["./*"],
       "~core/*": ["../core/*"]

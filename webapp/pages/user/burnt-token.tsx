@@ -11,6 +11,7 @@ import {
 import Head from "next/head";
 import Image from "next/image";
 import NextLink from "next/link";
+import FollowDalnFooter from "~~/components/FollowDalnFooter";
 
 import OnBoardingCenteredCard from "~~/components/OnBoardingCenteredCard";
 import OnBoardingContentPiece from "~~/components/OnBoardingContentPiece";
@@ -44,16 +45,16 @@ const BurntToken = () => {
         <HStack mb={16}>
           <OnBoardingContentPiece
             title="Control your data"
-            content="Have true ownership and governance in the data economy"
+            content="True ownership and governance in the data economy"
           />
           <OnBoardingContentPiece
             title="Get rewards"
-            content="Get rewards in Matic whenever your data is decrypted"
+            content="Collectively monetize the aggregated data"
           />
 
           <OnBoardingContentPiece
             title="Preserve privacy"
-            content="Pool your anonymized transaction data with other DAO members"
+            content="Transaction data never leaves your local devices during onboarding"
           />
         </HStack>
 
@@ -68,6 +69,8 @@ const BurntToken = () => {
           </NextLink>
         </Center>
       </OnBoardingCenteredCard>
+      
+      <FollowDalnFooter />
     </>
   );
 };

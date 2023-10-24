@@ -1,8 +1,8 @@
-import UserHome from "./user";
+import UserHome from "./user"
 
 export default function Index() {
 
   return (
     <UserHome />
   )
-};
+}

@@ -1,26 +1,40 @@
-import { MongoClient } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
+import { DynamoDB } from "aws-sdk";
 
-async function setToken(userId: string, token: string, itemId: string) {
-  const url = `mongodb+srv://admin:${process.env.DB_PASSWORD}@spndao.vjnl9b2.mongodb.net/?retryWrites=true&w=majority`;
-  const dbClient = new MongoClient(url);
-  const dbName = "spndao";
-  await dbClient.connect();
+const documentClient = new DynamoDB.DocumentClient({ region: "us-east-1" });
 
-  const db = dbClient.db(dbName);
-  const collection = db.collection("users");
+async function setToken(
+  userId: string,
+  token: string,
+  itemId: string,
+  address: string
+) {
+  const params = {
+    TableName: "users",
+    Item: {
+      name: userId,
+      address,
+      onboardingStep: "Processing",  // Assuming "Processing" corresponds to OnboardingSteps.Processing in your Express code
+      plaid_access_token: token,
+      plaid_item_id: itemId,
+      plaid_history_synced: false,
+    },
+  };
 
-  await collection.insertOne({
-    name: userId,
-    plaid_access_token: token,
-    plaid_item_id: itemId,
-  });
+  try {
+    await documentClient.put(params).promise();
+    return params.Item;
+  } catch (error) {
+    console.error(`setToken() failed: ${error}`);
+    throw error;
+  }
 }
 
 interface SetTokenProps extends NextApiRequest {
   body: {
     public_token: string;
+    address: string;
   };
 }
 
@@ -41,38 +55,35 @@ export default async function handler(
   const client = new PlaidApi(configuration);
 
   let plaidItemId = "";
+  let user;
 
-  await client
-    .itemPublicTokenExchange({
+  try {
+    const response = await client.itemPublicTokenExchange({
       public_token: req.body.public_token,
-    })
-    .then(async (response) => {
-      plaidItemId = response.data.item_id;
-      await setToken(
-        "abc",
-        response.data.access_token,
-        response.data.item_id
-      ).catch((error) => {
-        console.log(`setToken() failed: ${error}`);
-        res.status(500).json({ error: error });
-      });
-
-      // init the tx sync
-      await client
-        .transactionsSync({
-          access_token: response.data.access_token,
-        })
-        .catch((error) => {
-          console.log(`transactionsSync() failed: ${error}`);
-          res.status(500).json({ error: error });
-        });
-    })
-    .catch((error) => {
-      console.log(`exchange public token failed: ${error}`);
-      console.log(`public_token: ${req.body.public_token}`);
-      res.status(500).json({ error: error });
-    })
-    .finally(() => {
-      res.status(200).json({ success: true, plaidItemId });
     });
+
+    plaidItemId = response.data.item_id;
+
+    user = await setToken(
+      "abc",
+      response.data.access_token,
+      response.data.item_id,
+      req.body.address
+    );
+
+    // init the tx sync
+    await client.transactionsSync({
+      access_token: response.data.access_token,
+    });
+
+    res.status(200).json({
+      success: true,
+      plaidItemId,
+      user,
+    });
+  } catch (error) {
+    console.error(`Error: ${error}`);
+    console.error(`public_token: ${req.body.public_token}`);
+    res.status(500).json({ error: error });
+  }
 }

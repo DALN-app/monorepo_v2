@@ -102,9 +102,6 @@ const NoTokenPage: NextPageWithLayout = () => {
               linkToken={linkToken}
               isDisabled={!acceptTerms || isError || !linkToken}
               isLoading={isLoading}
-              onSuccess={() => {
-                void router.replace("/user/onboarding/upload-data");
-              }}
             >
               Join DALN
             </JoinDALNButton>

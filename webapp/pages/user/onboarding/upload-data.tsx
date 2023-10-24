@@ -19,9 +19,7 @@ import DataBaseSvgComponent from "~~/components/svgComponents/DataBaseSvgCompone
 import SuccessSvgComponent from "~~/components/svgComponents/SuccessSvgComponent";
 import UploadUserDataProgressBar from "~~/components/UploadUserDataProgressBar";
 import {
-  basicSpnFactoryABI,
-  spnFactoryABI,
-  usePrepareBasicSpnFactorySafeMint,
+  fevmDalnABI
 } from "~~/generated/wagmiTypes";
 import usePrepareWriteAndWaitTx from "~~/hooks/usePrepareWriteAndWaitTx";
 import { NextPageWithLayout } from "~~/pages/_app";
@@ -30,6 +28,7 @@ const steps = {
   downloading: {
     number: 1,
     title: "Downloading...",
+    subtitle: "",
   },
   analyzing: {
     number: 2,
@@ -96,11 +95,11 @@ const UploadDataPage: NextPageWithLayout = () => {
 
   const mintToken = usePrepareWriteAndWaitTx({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
-    abi: basicSpnFactoryABI,
+    abi: fevmDalnABI,
     functionName: "safeMint",
-    args: [userAddress, cid],
+    args: [userAddress],
     enabled:
-      !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress && !!cid,
+      !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress,
   });
 
   const signHashProof = useSignMessage({
@@ -134,16 +133,20 @@ const UploadDataPage: NextPageWithLayout = () => {
 
       return () => clearTimeout(timer);
     }
-    
+
   }, [step]);
 
   const mint = async () => {
     if (mintToken.writeAsync) {
       setStep("minting");
       try {
-        await mintToken.writeAsync();
-        setStep("mintSuccess");
-        sessionStorage.removeItem("plaidItemId");
+        const mintTx = await mintToken.writeAsync()
+        await mintTx.wait().then((res) => {
+          if (res.status === 1) {
+            setStep("mintSuccess")
+            sessionStorage.removeItem("plaidItemId");
+          }
+        });
       } catch (e) {
         console.error(e);
         setStep("uploadSuccess");
@@ -151,7 +154,7 @@ const UploadDataPage: NextPageWithLayout = () => {
     }
   };
 
-  const convertToken = async () => {
+  const convertToken = () => {
     // TODO: implement converstion of token to TBA
 
     // TEMPORARY: skip to convertSuccess

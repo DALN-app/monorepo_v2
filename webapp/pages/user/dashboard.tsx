@@ -20,8 +20,7 @@ import { NextPageWithLayout } from "../_app";
 import { DashboardStat, BurnSBT } from "~~/components/Dashboard";
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
 import PageTransition from "~~/components/PageTransition";
-import { useBasicSpnFactoryMetadataUri } from "~~/generated/wagmiTypes";
-import { watch } from "fs";
+import { useFevmDalnMetadataUri } from "~~/generated/wagmiTypes";
 
 const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
 
@@ -33,7 +32,7 @@ const getTableLandMetadata: QueryFunction<any, string[]> = async ({
 };
 
 const Dashboard: NextPageWithLayout = () => {
-  const tablelandMetadataURI = useBasicSpnFactoryMetadataUri({
+  const tablelandMetadataURI = useFevmDalnMetadataUri({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
   });
 

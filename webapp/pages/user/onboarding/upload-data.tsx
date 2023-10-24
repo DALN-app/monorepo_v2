@@ -19,9 +19,7 @@ import DataBaseSvgComponent from "~~/components/svgComponents/DataBaseSvgCompone
 import SuccessSvgComponent from "~~/components/svgComponents/SuccessSvgComponent";
 import UploadUserDataProgressBar from "~~/components/UploadUserDataProgressBar";
 import {
-  basicSpnFactoryABI,
-  spnFactoryABI,
-  usePrepareBasicSpnFactorySafeMint,
+  fevmDalnABI
 } from "~~/generated/wagmiTypes";
 import usePrepareWriteAndWaitTx from "~~/hooks/usePrepareWriteAndWaitTx";
 import { NextPageWithLayout } from "~~/pages/_app";
@@ -30,6 +28,7 @@ const steps = {
   downloading: {
     number: 1,
     title: "Downloading...",
+    subtitle: "",
   },
   analyzing: {
     number: 2,
@@ -96,12 +95,14 @@ const UploadDataPage: NextPageWithLayout = () => {
 
   const mintToken = usePrepareWriteAndWaitTx({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
-    abi: basicSpnFactoryABI,
+    abi: fevmDalnABI,
     functionName: "safeMint",
-    args: [userAddress, cid],
+    args: [userAddress],
     enabled:
-      !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress && !!cid,
+      !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress,
   });
+
+  console.log('mintToken', mintToken)
 
   const signHashProof = useSignMessage({
     message: 'Confirm to share analytic results',

@@ -59,7 +59,11 @@ export default function BurnSBT({
   const handleBurn = async () => {
     if (userBurn.writeAsync) {
       try {
-        await userBurn.writeAsync();
+        const burnTx = await userBurn.writeAsync();
+        burnTx.wait().then((res) => {
+          res.status === 1 && router.push("/user/burnt-token");
+        }
+        );
       } catch (e) {
         console.error("burn error", e);
         onClose();
@@ -117,7 +121,7 @@ export default function BurnSBT({
                 ml={3}
                 isLoading={userBurn.isLoading}
               >
-              { userBurn.isLoading ? 'Waiting for approval...' : 'Burn it anyway' }
+                {userBurn.isLoading ? 'Waiting for approval...' : 'Burn it anyway'}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -42,7 +42,7 @@ dependencies:
     specifier: ^8.7.9
     version: 8.10.7(react-dom@18.2.0)(react@18.2.0)
   '@wagmi/cli':
-    specifier: ^0.1.5
+    specifier: ^0.1.15
     version: 0.1.15(typescript@5.2.2)(wagmi@0.11.7)
   aws-sdk:
     specifier: ^2.1330.0

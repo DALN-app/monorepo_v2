@@ -1,13 +1,10 @@
 import {
-  Box,
-  Button,
   Card,
   CardBody,
   CardHeader,
   Container,
   Flex,
   Heading,
-  SimpleGrid,
   Stack,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -35,21 +32,20 @@ const Dashboard: NextPageWithLayout = () => {
   const tablelandMetadataURI = useFevmDalnMetadataUri({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
   });
-
   const { address } = useAccount();
-
   const findByAddress = encodeURIComponent(
     ` WHERE address='${address?.toLowerCase()}'`
   );
-
-  const tablelandMetadata = useQuery(
+  const {data} = useQuery(
     [`${tablelandMetadataURI.data}${findByAddress}` || ""],
     getTableLandMetadata,
     {
       enabled: !!tablelandMetadataURI.data && !!address,
-      refetchInterval: 5000,
+      refetchInterval: 10000,
     }
   );
+
+  const userTokenId = data && data[0]?.id;
 
   return (
     <>
@@ -68,7 +64,7 @@ const Dashboard: NextPageWithLayout = () => {
           <Card w="full" pb="100px" mb={2}>
             <CardHeader>
               <Flex justifyContent="flex-end" alignItems="center">
-                <BurnSBT tokenId={tablelandMetadata?.data?.[0]?.id} />
+                <BurnSBT tokenId={userTokenId} />
               </Flex>
 
               <Heading
@@ -86,7 +82,7 @@ const Dashboard: NextPageWithLayout = () => {
               <Stack spacing={5} maxWidth='3xl' mx='auto'>
                 <DashboardStat
                   label="Token ID"
-                  number={tablelandMetadata?.data?.[0]?.id}
+                  number={userTokenId}
                 />
                 <DashboardStat
                   label="SBT Contract"

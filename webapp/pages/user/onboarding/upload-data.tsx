@@ -133,16 +133,20 @@ const UploadDataPage: NextPageWithLayout = () => {
 
       return () => clearTimeout(timer);
     }
-    
+
   }, [step]);
 
   const mint = async () => {
     if (mintToken.writeAsync) {
       setStep("minting");
       try {
-        await mintToken.writeAsync();
-        setStep("mintSuccess");
-        sessionStorage.removeItem("plaidItemId");
+        const mintTx = await mintToken.writeAsync()
+        await mintTx.wait().then((res) => {
+          if (res.status === 1) {
+            setStep("mintSuccess")
+            sessionStorage.removeItem("plaidItemId");
+          }
+        });
       } catch (e) {
         console.error(e);
         setStep("uploadSuccess");

@@ -1,40 +1,67 @@
-import { Button, ButtonProps, ChakraProps, Flex } from "@chakra-ui/react";
+import { Button, ButtonProps, Flex } from "@chakra-ui/react";
 import axios, { AxiosError } from "axios";
-import { useCallback } from "react";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { PlaidLinkOnSuccess, usePlaidLink } from "react-plaid-link";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
+import { useAccount } from "wagmi";
 
 interface SetAccessTokenResponse {
   success: true;
   plaidItemId: string;
+  user: {
+    onboardingStep?: string;
+    plaid_item_id?: string;
+    cid?: string;
+  };
 }
 
-const setAccessToken = async (public_token: string) => {
-  const response = await axios.post("/api/set_access_token", {
-    public_token,
-  });
+const setAccessToken = async ({
+  public_token,
+  address,
+}: {
+  public_token: string;
+  address: string;
+}) => {
+  const response = await axios.post(
+    `${process.env.NEXT_PUBLIC_LAMBDA_SERVER_URL}/api/v1/set_access_token`,
+    {
+      public_token,
+      address,
+    }
+  );
   return response.data;
 };
 interface JoinDALNButtonProps extends ButtonProps {
   linkToken?: string;
-  onSuccess?: (data?: any, variables?: any, context?: any) => void;
 }
 export default function JoinDALNButton({
   linkToken,
-  onClick = () => null,
   isDisabled,
-  onSuccess = () => null,
   isLoading = false,
   ...props
 }: JoinDALNButtonProps) {
+  const router = useRouter();  // 
+  const [isPlaidLinkLoading, setIsPlaidLinkLoading] = useState(false);
+  const { address } = useAccount();
+
+  const queryClient = useQueryClient();
+
   const { mutateAsync, isLoading: isLoadingSetAccessToken } = useMutation<
     SetAccessTokenResponse,
     AxiosError,
-    string
+    { public_token: string; address: string }
   >(setAccessToken, {
-    onSuccess(data, variables, context) {
+    onSuccess: (data) => {
       sessionStorage.setItem("plaidItemId", data.plaidItemId);
-      onSuccess(data, variables, context);
+
+      queryClient.setQueryData(["get_onboarding_step", address], {
+        onboardingStep: data.user.onboardingStep,
+        plaidItemId: data.user.plaid_item_id,
+        cid: data.user.cid,
+      });
+
+      void router.push('/user/onboarding/upload-data')
     },
     onError(error) {
       console.log(`axios.post() failed: ${error}`);
@@ -45,7 +72,9 @@ export default function JoinDALNButton({
     public_token,
     metadata
   ) => {
-    await mutateAsync(public_token);
+    setIsPlaidLinkLoading(false);
+    if (!address) return;
+    await mutateAsync({ public_token, address });
   };
 
   const { open, ready } = usePlaidLink({
@@ -59,9 +88,12 @@ export default function JoinDALNButton({
         size="lg"
         maxWidth={382}
         flex={1}
-        isLoading={isLoading || isLoadingSetAccessToken}
+        isLoading={isLoading || isLoadingSetAccessToken || isPlaidLinkLoading}
         isDisabled={!linkToken || !ready || isDisabled}
-        onClick={() => open()}
+        onClick={() => {
+          setIsPlaidLinkLoading(true);
+          open();
+        }}
         {...props}
       >
         Join DALN

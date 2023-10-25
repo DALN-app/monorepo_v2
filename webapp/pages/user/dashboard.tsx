@@ -1,13 +1,11 @@
 import {
-  Box,
-  Button,
   Card,
   CardBody,
   CardHeader,
   Container,
   Flex,
   Heading,
-  SimpleGrid,
+  Stack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Head from "next/head";
@@ -19,8 +17,7 @@ import { NextPageWithLayout } from "../_app";
 import { DashboardStat, BurnSBT } from "~~/components/Dashboard";
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
 import PageTransition from "~~/components/PageTransition";
-import { useBasicSpnFactoryMetadataUri } from "~~/generated/wagmiTypes";
-import { watch } from "fs";
+import { useFevmDalnMetadataUri } from "~~/generated/wagmiTypes";
 
 const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
 
@@ -32,24 +29,23 @@ const getTableLandMetadata: QueryFunction<any, string[]> = async ({
 };
 
 const Dashboard: NextPageWithLayout = () => {
-  const tablelandMetadataURI = useBasicSpnFactoryMetadataUri({
+  const tablelandMetadataURI = useFevmDalnMetadataUri({
     address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
   });
-
   const { address } = useAccount();
-
   const findByAddress = encodeURIComponent(
     ` WHERE address='${address?.toLowerCase()}'`
   );
-
-  const tablelandMetadata = useQuery(
+  const {data} = useQuery(
     [`${tablelandMetadataURI.data}${findByAddress}` || ""],
     getTableLandMetadata,
     {
       enabled: !!tablelandMetadataURI.data && !!address,
-      refetchInterval: 5000,
+      refetchInterval: 10000,
     }
   );
+
+  const userTokenId = data && data[0]?.id;
 
   return (
     <>
@@ -65,10 +61,10 @@ const Dashboard: NextPageWithLayout = () => {
             lg: 24,
           }}
         >
-          <Card w="full">
+          <Card w="full" pb="100px" mb={2}>
             <CardHeader>
               <Flex justifyContent="flex-end" alignItems="center">
-                <BurnSBT tokenId={tablelandMetadata?.data?.[0]?.id} />
+                <BurnSBT tokenId={userTokenId} />
               </Flex>
 
               <Heading
@@ -83,12 +79,10 @@ const Dashboard: NextPageWithLayout = () => {
             </CardHeader>
 
             <CardBody>
-              <SimpleGrid columns={[1, 2]} spacing={5}>
-                <DashboardStat label="Rewards" helpText="Matic" number="1.27" />
-                <DashboardStat label="Decryption Sessions" number="5" />
+              <Stack spacing={5} maxWidth='3xl' mx='auto'>
                 <DashboardStat
                   label="Token ID"
-                  number={tablelandMetadata?.data?.[0]?.id}
+                  number={userTokenId}
                 />
                 <DashboardStat
                   label="SBT Contract"
@@ -98,9 +92,19 @@ const Dashboard: NextPageWithLayout = () => {
                     DALN_CONTRACT_ADDRESS.slice(-5)
                   }
                   href={`https://calibration.filscan.io/en/address/${DALN_CONTRACT_ADDRESS}`}
+                  linkText="View on Filscan"
                   isExternalHref
                 />
-              </SimpleGrid>
+                <DashboardStat label="TBA Address"  
+                  number={
+                    DALN_CONTRACT_ADDRESS.slice(0, 6) +
+                    "..." +
+                    DALN_CONTRACT_ADDRESS.slice(-5)
+                  }
+                  href={`https://opensea.io/${DALN_CONTRACT_ADDRESS}`}
+                  linkText="View on OpenSea"
+                  isExternalHref />
+              </Stack>
             </CardBody>
           </Card>
         </Container>

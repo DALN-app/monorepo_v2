@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useNetwork, useSignMessage } from "wagmi";
 
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
 import CheckMarkSvgComponent from "~~/components/svgComponents/CheckMarkSvgComponent";
@@ -19,8 +19,10 @@ import DataBaseSvgComponent from "~~/components/svgComponents/DataBaseSvgCompone
 import SuccessSvgComponent from "~~/components/svgComponents/SuccessSvgComponent";
 import UploadUserDataProgressBar from "~~/components/UploadUserDataProgressBar";
 import {
-  fevmDalnABI
+  fevmDalnABI,
+  erc6551RegistryABI,
 } from "~~/generated/wagmiTypes";
+import { useUserTokenId } from "~~/hooks/use-user-token-id";
 import usePrepareWriteAndWaitTx from "~~/hooks/usePrepareWriteAndWaitTx";
 import { NextPageWithLayout } from "~~/pages/_app";
 
@@ -80,9 +82,14 @@ const steps = {
   },
 };
 
+const ERC6551_ACCOUNT_ADDRESS = "0x147dE0f37a15E75D8d1a734E07e8AD03453a57B8"
+const ERC6551_REGISTRY_ADDRESS = "0xD700C17F46Dc803Efb7301e60137c3E42B5BBEEf"
+const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
+
 const UploadDataPage: NextPageWithLayout = () => {
   const [step, setStep] = useState<keyof typeof steps>("downloading");
-  const [isConvertLoading, setIsConvertLoading] = useState(false);
+  const userTokenId = useUserTokenId();
+
   const progress = useMemo(
     // hardcode to 6 regardless of total number of steps
     () => Math.round((100 / 6) * steps[step].number),
@@ -90,16 +97,33 @@ const UploadDataPage: NextPageWithLayout = () => {
   );
 
   const { address: userAddress } = useAccount();
+  const { chain } = useNetwork();
 
-  const cid = sessionStorage.getItem("plaidItemId")
+  // const cid = sessionStorage.getItem("plaidItemId")
 
   const mintToken = usePrepareWriteAndWaitTx({
-    address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
+    address: DALN_CONTRACT_ADDRESS,
     abi: fevmDalnABI,
     functionName: "safeMint",
     args: [userAddress],
     enabled:
-      !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && !!userAddress,
+      !!DALN_CONTRACT_ADDRESS && !!userAddress,
+  });
+
+  const createAccount = usePrepareWriteAndWaitTx({
+    address: ERC6551_REGISTRY_ADDRESS,
+    abi: erc6551RegistryABI,
+    functionName: "createAccount",
+    args: [
+      ERC6551_ACCOUNT_ADDRESS,
+      chain?.id,
+      DALN_CONTRACT_ADDRESS,
+      userTokenId,
+      1, //salt 
+      "0x" // init call data
+    ],
+    enabled:
+      !!ERC6551_ACCOUNT_ADDRESS && !!userAddress && !!userTokenId,
   });
 
   const signHashProof = useSignMessage({
@@ -128,7 +152,11 @@ const UploadDataPage: NextPageWithLayout = () => {
 
     if (step === "sharing") {
       const timer = setTimeout(() => {
-        setStep("uploadSuccess");
+        if (userTokenId) {
+          setStep("mintSuccess");
+        } else {
+          setStep("uploadSuccess");
+        }
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -154,18 +182,20 @@ const UploadDataPage: NextPageWithLayout = () => {
     }
   };
 
-  const convertToken = () => {
-    // TODO: implement converstion of token to TBA
-
-    // TEMPORARY: skip to convertSuccess
-    const timer = setTimeout(() => {
-      setStep("convertSuccess");
-    }
-      , 3000);
-
-    return () => {
-      setIsConvertLoading(false);
-      clearTimeout(timer)
+  const convertToken = async () => {
+    if (createAccount.writeAsync) {
+      setStep("converting");
+      try {
+        const createAccountTx = await createAccount.writeAsync()
+        await createAccountTx.wait().then((res) => {
+          if (res.status === 1) {
+            setStep("convertSuccess")
+          }
+        });
+      } catch (e) {
+        console.error(e);
+        setStep("mintSuccess");
+      }
     }
   }
 
@@ -183,7 +213,7 @@ const UploadDataPage: NextPageWithLayout = () => {
           {steps[step].subtitle}
         </Text>
         <Center alignItems="center">
-          {step === "mintSuccess" ? (
+          {step === "mintSuccess" || step === "converting" ? (
             <Container>
               <Flex flex={1} justifyContent="center">
                 <SuccessSvgComponent />
@@ -194,12 +224,12 @@ const UploadDataPage: NextPageWithLayout = () => {
                   size="lg"
                   flex={1}
                   mb={2}
-                  isDisabled={!userAddress || isConvertLoading}
+                  isDisabled={!userAddress || createAccount.isLoading}
+                  isLoading={createAccount.isLoading}
                   onClick={() => {
-                    setIsConvertLoading(true)
                     void convertToken();
                   }}>
-                  {isConvertLoading ? "Waiting for approval..." : "Convert"}
+                  {createAccount.isLoading ? "Waiting for Approval..." : "Convert"}
                 </Button>
               </Flex>
             </Container>

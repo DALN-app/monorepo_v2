@@ -10,7 +10,7 @@ dependencies:
     version: 16.3.1
   hardhat:
     specifier: ^2.12.7
-    version: 2.18.2(typescript@5.2.2)
+    version: 2.18.2(typescript@4.9.5)
   plaid:
     specifier: ^12.4.0
     version: 12.5.0
@@ -26,8 +26,8 @@ devDependencies:
     specifier: 15.7.1
     version: 15.7.1
   typescript:
-    specifier: ^5.2.2
-    version: 5.2.2
+    specifier: ^4.9.5
+    version: 4.9.5
 
 packages:
 
@@ -1758,7 +1758,7 @@ packages:
   /graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  /hardhat@2.18.2(typescript@5.2.2):
+  /hardhat@2.18.2(typescript@4.9.5):
     resolution: {integrity: sha512-lUVmJg7DsKcUCDpqv57CJl6vHqo/1PeHSfM3+WIa8UtRKmXyVTj1qQK01TDiuetkZBVg9Dn52qU+ZwaJQynaKA==}
     hasBin: true
     peerDependencies:
@@ -1815,7 +1815,7 @@ packages:
       source-map-support: 0.5.21
       stacktrace-parser: 0.1.10
       tsort: 0.0.1
-      typescript: 5.2.2
+      typescript: 4.9.5
       undici: 5.26.4
       uuid: 8.3.2
       ws: 7.5.9
@@ -2962,9 +2962,9 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
-    engines: {node: '>=14.17'}
+  /typescript@4.9.5:
+    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
+    engines: {node: '>=4.2.0'}
     hasBin: true
 
   /undici-types@5.25.3:

@@ -134,8 +134,6 @@ dist
 
 # hardhat cache
 /cache
-/artifacts
-/typechain-types
 
 # generated
 /generated

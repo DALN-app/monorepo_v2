@@ -7,45 +7,23 @@ import {
   Heading,
   Stack,
 } from "@chakra-ui/react";
-import axios from "axios";
 import Head from "next/head";
-import { QueryFunction, useQuery } from "react-query";
-import { useAccount } from "wagmi";
 
 import { NextPageWithLayout } from "../_app";
-
 import { DashboardStat, BurnSBT } from "~~/components/Dashboard";
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
 import PageTransition from "~~/components/PageTransition";
-import { useFevmDalnMetadataUri } from "~~/generated/wagmiTypes";
+import { useUserTokenId } from '../../hooks/use-user-token-id'
+import { useUserTbaAddress } from '../../hooks/use-user-tba-address'
 
 const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
 
-const getTableLandMetadata: QueryFunction<any, string[]> = async ({
-  queryKey,
-}) => {
-  const response = await axios.get(queryKey[0]);
-  return response.data;
-};
 
 const Dashboard: NextPageWithLayout = () => {
-  const tablelandMetadataURI = useFevmDalnMetadataUri({
-    address: process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`,
-  });
-  const { address } = useAccount();
-  const findByAddress = encodeURIComponent(
-    ` WHERE address='${address?.toLowerCase()}'`
-  );
-  const {data} = useQuery(
-    [`${tablelandMetadataURI.data}${findByAddress}` || ""],
-    getTableLandMetadata,
-    {
-      enabled: !!tablelandMetadataURI.data && !!address,
-      refetchInterval: 10000,
-    }
-  );
 
-  const userTokenId = data && data[0]?.id;
+  const userTokenId = useUserTokenId();
+  const userTbaAddress = useUserTbaAddress();
+
 
   return (
     <>
@@ -91,19 +69,21 @@ const Dashboard: NextPageWithLayout = () => {
                     "..." +
                     DALN_CONTRACT_ADDRESS.slice(-5)
                   }
-                  href={`https://calibration.filscan.io/en/address/${DALN_CONTRACT_ADDRESS}`}
+                  href={`https://calibration.filfox.info/address/${DALN_CONTRACT_ADDRESS}`}
                   linkText="View on Filscan"
                   isExternalHref
                 />
-                <DashboardStat label="TBA Address"  
-                  number={
-                    DALN_CONTRACT_ADDRESS.slice(0, 6) +
-                    "..." +
-                    DALN_CONTRACT_ADDRESS.slice(-5)
-                  }
-                  href={`https://opensea.io/${DALN_CONTRACT_ADDRESS}`}
-                  linkText="View on OpenSea"
-                  isExternalHref />
+                {userTbaAddress && (
+                  <DashboardStat label="TBA Address"
+                    number={
+                      userTbaAddress.slice(0, 6) +
+                      "..." +
+                      userTbaAddress.slice(-5)
+                    }
+                    href={`https://testnets.opensea.io/${userTbaAddress}`}
+                    linkText="View on OpenSea"
+                    isExternalHref />
+                )}
               </Stack>
             </CardBody>
           </Card>

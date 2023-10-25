@@ -70,7 +70,7 @@ const Dashboard: NextPageWithLayout = () => {
                     DALN_CONTRACT_ADDRESS.slice(-5)
                   }
                   href={`https://calibration.filfox.info/address/${DALN_CONTRACT_ADDRESS}`}
-                  linkText="View on Filscan"
+                  linkText="View on Filfox"
                   isExternalHref
                 />
                 {userTbaAddress && (

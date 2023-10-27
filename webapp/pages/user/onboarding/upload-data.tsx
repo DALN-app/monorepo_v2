@@ -9,9 +9,10 @@ import {
   Flex,
   Container,
 } from "@chakra-ui/react";
+import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useNetwork, useSignMessage } from "wagmi";
+import { useAccount, useContractWrite, useNetwork, useSignMessage } from "wagmi";
 
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
 import CheckMarkSvgComponent from "~~/components/svgComponents/CheckMarkSvgComponent";
@@ -88,6 +89,7 @@ const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `
 
 const UploadDataPage: NextPageWithLayout = () => {
   const [step, setStep] = useState<keyof typeof steps>("downloading");
+  const [convertIsLoading, setConvertIsLoading] = useState(false);
   const userTokenId = useUserTokenId();
 
   const progress = useMemo(
@@ -110,20 +112,19 @@ const UploadDataPage: NextPageWithLayout = () => {
       !!DALN_CONTRACT_ADDRESS && !!userAddress,
   });
 
-  const createAccount = usePrepareWriteAndWaitTx({
+  const createAccount = useContractWrite({
     address: ERC6551_REGISTRY_ADDRESS,
     abi: erc6551RegistryABI,
     functionName: "createAccount",
     args: [
       ERC6551_ACCOUNT_ADDRESS,
-      chain?.id,
+      BigNumber.from(chain?.id),
       DALN_CONTRACT_ADDRESS,
       userTokenId,
-      1, //salt 
+      BigNumber.from(1), //salt 
       "0x" // init call data
     ],
-    enabled:
-      !!ERC6551_ACCOUNT_ADDRESS && !!userAddress && !!userTokenId,
+    mode: "recklesslyUnprepared",
   });
 
   const signHashProof = useSignMessage({
@@ -187,11 +188,11 @@ const UploadDataPage: NextPageWithLayout = () => {
       setStep("converting");
       try {
         const createAccountTx = await createAccount.writeAsync()
-        await createAccountTx.wait().then((res) => {
-          if (res.status === 1) {
-            setStep("convertSuccess")
-          }
-        });
+        const createAccountTxReceipt = await createAccountTx.wait()
+        if (createAccountTxReceipt.status === 1) {
+          setStep("convertSuccess")
+        }
+        setConvertIsLoading(false)
       } catch (e) {
         console.error(e);
         setStep("mintSuccess");
@@ -227,8 +228,9 @@ const UploadDataPage: NextPageWithLayout = () => {
                   isDisabled={!userAddress || createAccount.isLoading}
                   isLoading={createAccount.isLoading}
                   onClick={() => {
+                    setConvertIsLoading(true)
                     void convertToken();
-                  }}>
+                  }} >
                   {createAccount.isLoading ? "Waiting for Approval..." : "Convert"}
                 </Button>
               </Flex>
@@ -295,9 +297,7 @@ const UploadDataPage: NextPageWithLayout = () => {
                       mb={6}
                       isDisabled={!mintToken.write}
                       isLoading={mintToken.isLoading}
-                      onClick={() => {
-                        void mint();
-                      }}
+                      onClick={() => mint()}
                     >
                       {step === "minting" ? "Waiting for approval..." : "Mint token"}
                     </Button>

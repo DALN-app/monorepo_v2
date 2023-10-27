@@ -50,12 +50,6 @@ export default function BurnSBT({
       !!process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS && tokenId !== undefined,
   });
 
-  useEffect(() => {
-    if (userBurn.isSuccess && balanceQuery.data && balanceQuery.data.lte(0)) {
-      void router.push("/user/burnt-token");
-    }
-  }, [balanceQuery.data, onClose, router, userBurn.isSuccess]);
-
   const handleBurn = async () => {
     if (userBurn.writeAsync) {
       try {

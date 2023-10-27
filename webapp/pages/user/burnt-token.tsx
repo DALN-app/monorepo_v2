@@ -62,7 +62,7 @@ const BurntToken = () => {
           <Text mb={3} color="gray.600">
             Change your mind?
           </Text>
-          <NextLink href="/user">
+          <NextLink href="/user/onboarding/not-connected">
             <Button size="lg" px={16}>
               Re-join DALN
             </Button>

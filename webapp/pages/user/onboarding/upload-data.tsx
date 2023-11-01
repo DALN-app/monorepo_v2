@@ -9,9 +9,11 @@ import {
   Flex,
   Container,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from 'react-query'; 
 import { useAccount, useContractWrite, useNetwork, useSignMessage } from "wagmi";
 
 import ConnectedLayout from "~~/components/layouts/ConnectedLayout";
@@ -101,7 +103,23 @@ const UploadDataPage: NextPageWithLayout = () => {
   const { address: userAddress } = useAccount();
   const { chain } = useNetwork();
 
-  // const cid = sessionStorage.getItem("plaidItemId")
+  const getPlaidTransactionSync = async (itemId: string) => {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_LAMBDA_SERVER_URL}/api/v1/plaid_transaction_sync/${itemId}`
+    );
+    return response.data;
+  };
+  const plaidItemId = sessionStorage.getItem("plaidItemId");
+  const { data: plaidTransactionData } = useQuery(
+    [plaidItemId, "plaid_transaction_sync"],
+    () => getPlaidTransactionSync(plaidItemId as string),
+    {
+      onSuccess: (data) => {
+        console.log("********** Plaid Item Id *********", plaidItemId);
+        console.log("********** Data from Plaid *********", data);
+      },
+    }
+  );
 
   const mintToken = usePrepareWriteAndWaitTx({
     address: DALN_CONTRACT_ADDRESS,

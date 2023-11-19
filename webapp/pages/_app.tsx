@@ -10,7 +10,7 @@ import type { AppProps } from "next/app";
 import { ReactElement, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { filecoinCalibration } from "wagmi/chains";
+import { polygonMumbai, filecoinCalibration } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
@@ -28,9 +28,9 @@ const queryClient = new QueryClient();
 const { chains, provider, webSocketProvider } = configureChains(
   [
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-      ? [filecoinCalibration]
+      ? [polygonMumbai]
       : []),
-      filecoinCalibration,
+      polygonMumbai,
   ],
   [
     alchemyProvider({

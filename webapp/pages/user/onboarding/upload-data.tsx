@@ -10,7 +10,7 @@ import {
   Container,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { BigNumber } from "ethers";
+import { BigNumber } from "@ethersproject/bignumber";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from 'react-query'; 

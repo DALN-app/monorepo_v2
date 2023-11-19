@@ -1,7 +1,7 @@
 import { useNetwork } from "wagmi";
 import { useErc6551RegistryAccount } from "~~/generated/wagmiTypes";
 import { useUserTokenId } from "./use-user-token-id";
-import { BigNumber } from "ethers";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const DALN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DALN_CONTRACT_ADDRESS as `0x${string}`;
 const ERC6551_REGISTRY_ADDRESS = "0xD700C17F46Dc803Efb7301e60137c3E42B5BBEEf"
